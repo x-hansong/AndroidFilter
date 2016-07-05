@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Filter</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="black_list_filter">黑名单拦截</string>
+    <string name="time_range_filter">时间范围拦截</string>
+    <string name="stranger_filter">陌生人拦截</string>
+    <string name="location_filter">归属地拦截</string>
+    <string name="use_black_list">启动黑名单拦截</string>
+    <string name="input_number">输入要拦截的号码</string>
+    <string name="add">添加</string>
+</resources>
