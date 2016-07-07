@@ -8,4 +8,6 @@
     <string name="use_black_list">启动黑名单拦截</string>
     <string name="input_number">输入要拦截的号码</string>
     <string name="add">添加</string>
+    <string name="use_stranger">启动陌生人拦截</string>
+    <string name="sure">确定</string>
 </resources>

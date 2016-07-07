@@ -12,6 +12,8 @@ public class Constants {
     public static final String PHONE = "phone";
 
     public static final String FILTER_PROS = "filter_pros";
+    public static final String START_TIME = "start_time";
+    public static final String END_TIME = "end_time";
 
 
     public static final String BLACK_LIST_FILTER = "black_list_filter";

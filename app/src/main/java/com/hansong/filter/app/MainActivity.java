@@ -15,11 +15,13 @@ import android.widget.*;
 import com.hansong.filter.R;
 import com.hansong.filter.core.*;
 import com.hansong.filter.impl.NumeralFilter;
+import com.hansong.filter.impl.TimeRangFilter;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.hansong.filter.utils.Constants.BLACK_LIST_FILTER;
+import static com.hansong.filter.utils.Constants.TIME_RANGE_FILTER;
 
 
 public class MainActivity extends Activity {
@@ -179,7 +181,7 @@ public class MainActivity extends Activity {
                 .setHandler(mHandler)
 //                .addFilters(BLACK_LIST_FILTER, new NumeralFilter(IFilter.OP_PASS, "95555", "95588"))         //实现白名单放行
                 .addFilters(BLACK_LIST_FILTER, NumeralFilter.build(IFilter.OP_BLOCKED, this))   //实现黑名单放行
-//                .addFilters(TIME_RANGE_FILTER, new PrefixFilter(IFilter.OP_BLOCKED, "156", "10086", "134")) //前缀拦截
+                .addFilters(TIME_RANGE_FILTER, TimeRangFilter.build(this)) //前缀拦截
 //				.addFilters(new LocationFilter()) //实现归属地拦截， 进阶课程的内容
 //				.addFilters(new SystemContactFilter()) //系统联系人过滤， 进阶课程的内容
                 .create();

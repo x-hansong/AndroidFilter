@@ -43,6 +43,7 @@ public final class NumeralFilter extends AbsFilter {
 
         for(String number : numbers){
             if(number != null && number.equals(phone)){
+                Log.d(TAG, "黑名单拦截：" + phone);
                 return mOpcode;
             }
         }
