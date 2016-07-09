@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.*;
 import com.hansong.filter.R;
 import com.hansong.filter.core.IBlocker;
+import com.hansong.filter.impl.NumeralFilter;
 import com.hansong.filter.impl.TimeRangFilter;
 
 import static com.hansong.filter.utils.Constants.*;
@@ -29,11 +30,12 @@ public class ConfigActivity extends Activity {
     private Button btnLocation;
     private AlertDialog alert;
     private AlertDialog.Builder builder;
-    private View alertVeiw;
+    private View alertView;
     private EditText etStartTime;
     private EditText etEndTime;
     private SharedPreferences sharedPreferences;
     private TimeRangFilter timeRangFilter;
+    private NumeralFilter whiteFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class ConfigActivity extends Activity {
         setupFilter();
         initView();
         setupSwitchTime();
+        setupSwitchStranger();
 
     }
 
@@ -52,6 +55,7 @@ public class ConfigActivity extends Activity {
         FilterApp filterApp = (FilterApp) getApplication();
         IBlocker iBlocker = filterApp.getiBlocker();
         timeRangFilter = (TimeRangFilter) iBlocker.getFilter(TIME_RANGE_FILTER);
+        whiteFilter = (NumeralFilter) iBlocker.getFilter(WHITE_LIST_FILTER);
     }
 
     private void initView() {
@@ -68,23 +72,41 @@ public class ConfigActivity extends Activity {
                 startActivity(new Intent(ConfigActivity.this, BlackListActivity.class));
             }
         });
+    }
 
+    private void setupSwitchStranger() {
+        swStranger.setChecked(sharedPreferences.getBoolean(USE_WHITE_LIST, false));
 
+        swStranger.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(USE_WHITE_LIST, isChecked);
+                editor.apply();
+
+                Log.d(TAG, "陌生人拦截配置开关：" + isChecked);
+                if (isChecked) {
+                    whiteFilter.open();
+                } else {
+                    whiteFilter.close();
+                }
+            }
+        });
     }
 
     private void initSwitchTime() {
 
         //加载设置时间范围的view
         final LayoutInflater inflater = this.getLayoutInflater();
-        alertVeiw = inflater.inflate(R.layout.view_set_time, null, false);
-        etStartTime = (EditText) alertVeiw.findViewById(R.id.et_start_time);
-        etEndTime = (EditText) alertVeiw.findViewById(R.id.et_end_time);
+        alertView = inflater.inflate(R.layout.view_set_time, null, false);
+        etStartTime = (EditText) alertView.findViewById(R.id.et_start_time);
+        etEndTime = (EditText) alertView.findViewById(R.id.et_end_time);
 
         etStartTime.setText(sharedPreferences.getInt(START_TIME, 0) + "");
         etEndTime.setText(sharedPreferences.getInt(END_TIME, 0) + "");
         swTime.setChecked(sharedPreferences.getBoolean(USE_TIME_RANGE, false));
 
-        alertVeiw.findViewById(R.id.btn_ok).setOnClickListener(new View.OnClickListener() {
+        alertView.findViewById(R.id.btn_ok).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int startTime = Integer.parseInt(etStartTime.getText().toString());
@@ -106,7 +128,7 @@ public class ConfigActivity extends Activity {
         });
         builder = new AlertDialog.Builder(this);
         alert = builder.setTitle("设置拦截时间范围")
-                .setView(alertVeiw).create();
+                .setView(alertView).create();
 
     }
 

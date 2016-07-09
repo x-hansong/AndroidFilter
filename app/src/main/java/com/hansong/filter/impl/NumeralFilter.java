@@ -1,20 +1,12 @@
 package com.hansong.filter.impl;
 
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import com.hansong.filter.app.DBOpenHelper;
 import com.hansong.filter.core.AbsFilter;
 import com.hansong.filter.core.IFilter;
 import com.hansong.filter.core.MessageData;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.hansong.filter.utils.Constants.*;
+import java.util.Set;
 
 /**
  * 
@@ -25,15 +17,13 @@ import static com.hansong.filter.utils.Constants.*;
 public final class NumeralFilter extends AbsFilter {
     private static final String TAG = NumeralFilter.class.getName();
 
-    private ArrayList<String> numbers;
+    private Set<String> numbers;
     private int mOpcode;
 
-    private NumeralFilter(int opcode){
-        mOpcode = opcode;
-        numbers = new ArrayList<String>();
+    private NumeralFilter(){
     }
 
-    public ArrayList<String> getNumbers() {
+    public Set<String> getNumbers() {
         return numbers;
     }
 
@@ -41,45 +31,54 @@ public final class NumeralFilter extends AbsFilter {
     public int onFiltering(MessageData data) {
         String phone = data.getString(MessageData.KEY_DATA);
 
-        for(String number : numbers){
-            if(number != null && number.equals(phone)){
+        if (numbers.contains(phone)) {
+            if (mOpcode == IFilter.OP_BLOCKED) {
                 Log.d(TAG, "黑名单拦截：" + phone);
-                return mOpcode;
+            } else {
+                Log.d(TAG, "白名单放行：" + phone);
             }
+            return mOpcode;
+        } else {
+            return IFilter.OP_SKIP;
         }
-
-        return IFilter.OP_SKIP;
     }
 
-    public static NumeralFilter build(int mOpcode, Context context) {
-        NumeralFilter numeralFilter = new NumeralFilter(mOpcode);
-        List<String> numbers = numeralFilter.getNumbers();
+    public void setmOpcode(int mOpcode) {
+        this.mOpcode = mOpcode;
+    }
 
-        //加载配置
-        SharedPreferences sharedPreferences = context.getSharedPreferences(FILTER_PROS, Context.MODE_PRIVATE);
-        boolean isOpen = sharedPreferences.getBoolean(USE_BLACK_LIST, false);
-        if (isOpen) {
-            numeralFilter.open();
-        } else {
-            numeralFilter.close();
+    public void setNumbers(Set<String> numbers) {
+        this.numbers = numbers;
+    }
+
+    public static class Builder {
+        private NumeralFilter numeralFilter;
+        public Builder() {
+            numeralFilter = new NumeralFilter();
         }
 
-        // 从数据库加载黑名单
-        DBOpenHelper dbOpenHelper = new DBOpenHelper(context, DB_NAME, null, DB_VERSION);
-        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
-        Cursor cursor = db.query(T_BLACK_LIST, new String[]{PHONE}, null, null, null, null,null);
-        cursor.moveToFirst();
-        Log.d(TAG, "数据库中已有黑名单记录：" + cursor.getCount());
-
-        while (!cursor.isAfterLast()) {
-            numbers.add(cursor.getString(0));
-            cursor.moveToNext();
+        public Builder setOpcode(int opcode) {
+            numeralFilter.setmOpcode(opcode);
+            return this;
         }
-        cursor.close();
-        db.close();
 
-        return numeralFilter;
+        public Builder setNumber(Set<String> numbers) {
+            numeralFilter.setNumbers(numbers);
+            return this;
+        }
 
+        public Builder setStatus(boolean isOpen) {
+            if (isOpen) {
+                numeralFilter.open();
+            } else {
+                numeralFilter.close();
+            }
+            return this;
+        }
+
+        public NumeralFilter create() {
+            return numeralFilter;
+        }
     }
 
 }

@@ -18,6 +18,7 @@ import com.hansong.filter.impl.NumeralFilter;
 import com.hansong.filter.utils.Constants;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static android.content.SharedPreferences.Editor;
 import static com.hansong.filter.utils.Constants.*;
@@ -33,7 +34,7 @@ public class BlackListActivity extends Activity {
     private DBOpenHelper dbOpenHelper;
     private SharedPreferences sharedPreferences;
     private ArrayAdapter adapter;
-    private ArrayList<String> blackList;
+    private List<String> blackList;
     private NumeralFilter numeralFilter;
     private AlertDialog alert;
     private AlertDialog.Builder builder;
@@ -59,7 +60,6 @@ public class BlackListActivity extends Activity {
         FilterApp filterApp = (FilterApp) getApplication();
         IBlocker iBlocker = filterApp.getiBlocker();
         numeralFilter = (NumeralFilter) iBlocker.getFilter(Constants.BLACK_LIST_FILTER);
-        blackList = numeralFilter.getNumbers();
     }
 
     private void initView() {
@@ -101,6 +101,9 @@ public class BlackListActivity extends Activity {
      * 初始化数据
      */
     private void initData() {
+
+        blackList = new ArrayList<String>(numeralFilter.getNumbers().size());
+        blackList.addAll(numeralFilter.getNumbers());
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, blackList);
         lvNumber.setAdapter(adapter);
     }
@@ -120,6 +123,7 @@ public class BlackListActivity extends Activity {
                     db.insert(T_BLACK_LIST, null, contentValues);
 
                     blackList.add(phone);
+                    numeralFilter.getNumbers().add(phone);
 
                     //刷新listview
                     adapter.notifyDataSetChanged();

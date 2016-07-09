@@ -4,11 +4,17 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -20,8 +26,7 @@ import com.hansong.filter.impl.TimeRangFilter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.hansong.filter.utils.Constants.BLACK_LIST_FILTER;
-import static com.hansong.filter.utils.Constants.TIME_RANGE_FILTER;
+import static com.hansong.filter.utils.Constants.*;
 
 
 public class MainActivity extends Activity {
@@ -93,6 +98,10 @@ public class MainActivity extends Activity {
     private AbsTrigger mTrigger = new DemoTrigger();
     private AbsHandler mHandler = new DemoHandler();
 
+    private static final String TAG = MainActivity.class.getName();
+
+    private SharedPreferences sharedPreferences;
+    private DBOpenHelper dbOpenHelper;
     private ListAdapter mAdapter;
     private Handler mUIHandler;
     private FilterApp filterApp;
@@ -102,6 +111,9 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        sharedPreferences  = this.getSharedPreferences(FILTER_PROS, Context.MODE_PRIVATE);
+        dbOpenHelper = new DBOpenHelper(this, DB_NAME, null, DB_VERSION);
 
         // View引用初始化
         mBTEmulate = (Button) findViewById(R.id.bt_emulate);
@@ -176,19 +188,67 @@ public class MainActivity extends Activity {
     private void setupBlocker() {
         BlockerBuilder builder = new BlockerBuilder();
 
+        NumeralFilter blackFilter = new NumeralFilter.Builder()
+                .setOpcode(IFilter.OP_BLOCKED)
+                .setNumber(loadBlackList())
+                .setStatus(sharedPreferences.getBoolean(USE_BLACK_LIST, false))
+                .create();
+
+        NumeralFilter whiteFilter = new NumeralFilter.Builder()
+                .setOpcode(IFilter.OP_PASS)
+                .setNumber(loadWhiteList())
+                .setStatus(sharedPreferences.getBoolean(USE_WHITE_LIST, false))
+                .create();
+
         mBlocker = builder
                 .setTrigger(mTrigger)
                 .setHandler(mHandler)
-//                .addFilters(BLACK_LIST_FILTER, new NumeralFilter(IFilter.OP_PASS, "95555", "95588"))         //实现白名单放行
-                .addFilters(BLACK_LIST_FILTER, NumeralFilter.build(IFilter.OP_BLOCKED, this))   //实现黑名单放行
-                .addFilters(TIME_RANGE_FILTER, TimeRangFilter.build(this)) //前缀拦截
+                .addFilters(WHITE_LIST_FILTER, whiteFilter)
+                .addFilters(BLACK_LIST_FILTER, blackFilter)
+                .addFilters(TIME_RANGE_FILTER, TimeRangFilter.build(this))
 //				.addFilters(new LocationFilter()) //实现归属地拦截， 进阶课程的内容
-//				.addFilters(new SystemContactFilter()) //系统联系人过滤， 进阶课程的内容
                 .create();
 
         mBlocker.enable();
 
         filterApp.setiBlocker(mBlocker);
+    }
+
+    private Set<String> loadBlackList() {
+        SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
+        Cursor cursor = db.query(T_BLACK_LIST, new String[]{PHONE}, null, null, null, null,null);
+        cursor.moveToFirst();
+        Log.d(TAG, "数据库中已有黑名单记录：" + cursor.getCount());
+
+        Set<String> numbers = new HashSet<String>();
+        while (!cursor.isAfterLast()) {
+            numbers.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+        cursor.close();
+        db.close();
+
+        return numbers;
+    }
+
+    private Set<String> loadWhiteList() {
+        //得到ContentResolver对象
+        ContentResolver cr = getContentResolver();
+        //取得电话本中开始一项的光标
+        Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+        Set<String> numbers = new HashSet<String>();
+
+        Log.d(TAG, "加载联系人记录：" + cursor.getCount());
+        //向下移动光标
+        while(cursor.moveToNext()) {
+            String phone = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            Log.d(TAG, phone);
+            //格式化手机号
+            phone = phone.replace("-","");
+            phone = phone.replace(" ","");
+            numbers.add(phone);
+        }
+        return numbers;
     }
 
 }
