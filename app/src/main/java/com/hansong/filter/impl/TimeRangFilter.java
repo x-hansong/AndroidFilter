@@ -1,17 +1,11 @@
 package com.hansong.filter.impl;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 import com.hansong.filter.core.AbsFilter;
 import com.hansong.filter.core.IFilter;
 import com.hansong.filter.core.MessageData;
-import com.hansong.filter.utils.Constants;
 
 import java.util.Calendar;
-
-import static com.hansong.filter.utils.Constants.FILTER_PROS;
-import static com.hansong.filter.utils.Constants.USE_TIME_RANGE;
 
 
 /**
@@ -23,20 +17,18 @@ public final class TimeRangFilter extends AbsFilter {
 
 
     public static String TAG = TimeRangFilter.class.getName();
-    private int mStartHour;
-    private int mEndHour;
+    private int startHour;
+    private int endHour;
 
-    private TimeRangFilter(int starthour, int endhour){
-        mStartHour = starthour;
-        mEndHour = endhour;
+    private TimeRangFilter(){
     }
 
-    public void setmStartHour(int mStartHour) {
-        this.mStartHour = mStartHour;
+    public void setStartHour(int startHour) {
+        this.startHour = startHour;
     }
 
-    public void setmEndHour(int mEndHour) {
-        this.mEndHour = mEndHour;
+    public void setEndHour(int endHour) {
+        this.endHour = endHour;
     }
 
     @Override
@@ -46,7 +38,7 @@ public final class TimeRangFilter extends AbsFilter {
         int current_hour = now.get(Calendar.HOUR_OF_DAY);
 
         String phone = data.getString(MessageData.KEY_DATA);
-        if(current_hour >= mStartHour && current_hour <= mEndHour){
+        if(current_hour >= startHour && current_hour <= endHour){
             Log.d(TAG, "时间拦截：" + phone);
             return IFilter.OP_BLOCKED;
         }else{
@@ -54,21 +46,31 @@ public final class TimeRangFilter extends AbsFilter {
         }
     }
 
-    public static TimeRangFilter build(Context context) {
-        //加载配置
-        SharedPreferences sharedPreferences = context.getSharedPreferences(FILTER_PROS, Context.MODE_PRIVATE);
+    public static class Builder {
+        private TimeRangFilter timeRangFilter;
 
-        int startTime = sharedPreferences.getInt(Constants.START_TIME, 0);
-        int endTime = sharedPreferences.getInt(Constants.END_TIME, 0);
-        TimeRangFilter timeRangFilter = new TimeRangFilter(startTime, endTime);
-
-        boolean isOpen = sharedPreferences.getBoolean(USE_TIME_RANGE, false);
-        if (isOpen) {
-            timeRangFilter.open();
-        } else {
-            timeRangFilter.close();
+        public Builder() {
+            timeRangFilter = new TimeRangFilter();
         }
-        return timeRangFilter;
+
+        public Builder setTimeRange(int startHour, int endHour) {
+            timeRangFilter.setStartHour(startHour);
+            timeRangFilter.setEndHour(endHour);
+            return this;
+        }
+
+        public Builder setStatus(boolean isOpen) {
+            if (isOpen) {
+                timeRangFilter.open();
+            } else {
+                timeRangFilter.close();
+            }
+            return this;
+        }
+
+        public TimeRangFilter create() {
+            return timeRangFilter;
+        }
     }
 
 }

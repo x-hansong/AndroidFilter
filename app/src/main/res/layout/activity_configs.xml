@@ -5,43 +5,34 @@
               android:layout_height="match_parent">
 
     <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="40dp" android:layout_alignParentTop="true"
+            android:layout_height="wrap_content" android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true" android:layout_alignParentStart="true" android:id="@+id/linearLayout1">
-        <TableLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-        </TableLayout>
         <Switch
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:padding="10dp"
                 android:text="@string/time_range_filter"
                 android:id="@+id/sw_use_time"/>
-    </LinearLayout>
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="40dp" android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true" android:layout_alignParentStart="true" android:id="@+id/linearLayout">
-        <TableLayout
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-        </TableLayout>
-        <Switch
+       <Switch
                 android:layout_width="match_parent"
+                android:padding="10dp"
                 android:layout_height="match_parent"
                 android:text="@string/use_stranger"
                 android:id="@+id/sw_use_stranger"/>
-    </LinearLayout>
-    <Button
+        <Switch
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/location_filter"
-            android:id="@+id/btn_location"/>
-    <Button
+            android:padding="10dp"
+            android:id="@+id/sw_location"/>
+
+    </LinearLayout>
+   <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:text="@string/black_list_filter"
             android:id="@+id/btn_black_list"/>
 </LinearLayout>

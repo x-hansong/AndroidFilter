@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import static com.hansong.filter.utils.Constants.T_BLACK_LIST;
-import static com.hansong.filter.utils.Constants.T_WHITE_LIST;
+import static com.hansong.filter.utils.Constants.T_RECORD;
 
 /**
  * Created by xhans on 2016/7/3 0003.
@@ -18,7 +18,7 @@ public class DBOpenHelper extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + T_BLACK_LIST + " (bid INTEGER PRIMARY KEY AUTOINCREMENT,phone VARCHAR(11))");
-        db.execSQL("CREATE TABLE " + T_WHITE_LIST + " (wid INTEGER PRIMARY KEY AUTOINCREMENT,phone VARCHAR(11))");
+        db.execSQL("CREATE TABLE " + T_RECORD + " (rid INTEGER PRIMARY KEY AUTOINCREMENT,phone VARCHAR(11), time VARCHAR(20))");
     }
 
     @Override
