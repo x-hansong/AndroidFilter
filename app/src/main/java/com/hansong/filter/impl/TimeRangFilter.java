@@ -10,7 +10,7 @@ import java.util.Calendar;
 
 /**
  * 按时段过滤
- * @author boyliang
+ * @author hansong
  *
  */
 public final class TimeRangFilter extends AbsFilter {

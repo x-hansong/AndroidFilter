@@ -3,13 +3,13 @@ package com.hansong.filter.core;
 /**
  * 事件触发器，所有来电，短信接收都由这里产生
  * 抽象类
- * @author boyliang
+ * @author hansong
  */
 public abstract class AbsTrigger {
 	
 	/**
 	 * 触发监听器
-	 * @author boyliang
+	 * @author hansong
 	 *
 	 */
 	interface ITriggerListener {

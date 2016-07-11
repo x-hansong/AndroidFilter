@@ -7,7 +7,7 @@ import com.hansong.filter.core.MessageData;
 
 /**
  * 前缀匹配 过滤器
- * @author boyliang
+ * @author hansong
  *
  */
 public final class PrefixFilter extends AbsFilter {

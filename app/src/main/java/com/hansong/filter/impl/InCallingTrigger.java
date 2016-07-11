@@ -6,7 +6,7 @@ import com.hansong.filter.core.MessageData;
 
 /**
  * 来电触发器，主要用于捕获来电事件， 作为进阶课程内容
- * @author boyliang
+ * @author hansong
  *
  */
 public final class InCallingTrigger extends AbsTrigger {

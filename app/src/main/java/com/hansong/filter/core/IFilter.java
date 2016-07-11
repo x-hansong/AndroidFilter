@@ -2,7 +2,7 @@ package com.hansong.filter.core;
 
 /**
  * 数据过滤器，接口类型
- * @author boyliang
+ * @author hansong
  */
 public interface IFilter {
 	

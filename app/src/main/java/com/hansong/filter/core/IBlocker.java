@@ -2,7 +2,7 @@ package com.hansong.filter.core;
 
 /**
  * 拦截器，负责把Trigger, Filter和Handler三者关联起来 
- * @author boyliang
+ * @author hansong
  *
  */
 public interface IBlocker {

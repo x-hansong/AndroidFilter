@@ -5,7 +5,7 @@ import android.util.SparseIntArray;
 
 /**
  * 数据传递载体，主要用于Trigger, Filter和Handler之间的数据传递。本类非线程安全，使用时需要注意
- * @author boyliang
+ * @author hansong
  */
 public final class MessageData{
 	public static final String KEY_OP	 	= "key_op";

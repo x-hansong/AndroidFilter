@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * 
  * 基于号码严格匹配的过滤器
- * @author boyliang
+ * @author hansong
  *
  */
 public final class NumeralFilter extends AbsFilter {

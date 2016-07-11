@@ -11,7 +11,7 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * 基于正则表达式的过滤器
- * @author boyliang
+ * @author hansong
  */
 public final class RegexFilter extends AbsFilter {
 	private Pattern mPattern;

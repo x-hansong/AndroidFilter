@@ -59,10 +59,12 @@ public final class LocationFilter extends AbsFilter {
         });
         try {
             //等待查询结果
-            return future.get();
+            return future.get(1000, TimeUnit.MICROSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
             e.printStackTrace();
         }
         return OP_SKIP;

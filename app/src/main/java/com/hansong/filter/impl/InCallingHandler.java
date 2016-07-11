@@ -27,7 +27,7 @@ import static com.hansong.filter.utils.Constants.*;
 /**
  * 来电 处理器， 主要对经由各种Filter判断之后的结果进行处理，比如挂断来电，通知栏提醒等等
  *
- * @author boyliang
+ * @author hansong
  */
 public final class InCallingHandler extends AbsHandler {
     private static final String TAG = InCallingHandler.class.getName();

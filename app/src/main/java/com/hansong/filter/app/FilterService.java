@@ -20,13 +20,16 @@ import com.hansong.filter.impl.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static com.hansong.filter.utils.Constants.*;
 
 /**
  * Created by xhans on 2016/7/9 0009.
  */
-public class FilterService extends Service{
+public class FilterService extends Service {
 
     private static final String TAG = FilterService.class.getName();
     private TelephonyManager tm;
@@ -37,6 +40,8 @@ public class FilterService extends Service{
     private InCallingTrigger inCallingTrigger;
     private InCallingHandler inCallingHandler;
     private PhoneStateListener listener;
+    private ScheduledExecutorService executor;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -46,14 +51,15 @@ public class FilterService extends Service{
     @Override
     public void onCreate() {
         super.onCreate();
-        sharedPreferences  = this.getSharedPreferences(FILTER_PROS, Context.MODE_PRIVATE);
+        sharedPreferences = this.getSharedPreferences(FILTER_PROS, Context.MODE_PRIVATE);
         dbOpenHelper = new DBOpenHelper(this, DB_NAME, null, DB_VERSION);
         filterApp = (FilterApp) getApplication();
         inCallingHandler = new InCallingHandler(this);
         inCallingTrigger = new InCallingTrigger();
         tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        executor = Executors.newScheduledThreadPool(1);
 
-       listener = new PhoneStateListener() {
+        listener = new PhoneStateListener() {
             @Override
             public void onCallStateChanged(int state, String incomingNumber) {
                 super.onCallStateChanged(state, incomingNumber);
@@ -67,7 +73,7 @@ public class FilterService extends Service{
                 }
             }
         };
-
+        //监听来电
         tm.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
         setupBlocker();
     }
@@ -123,7 +129,7 @@ public class FilterService extends Service{
 
     private Set<String> loadBlackList() {
         SQLiteDatabase db = dbOpenHelper.getReadableDatabase();
-        Cursor cursor = db.query(T_BLACK_LIST, new String[]{PHONE}, null, null, null, null,null);
+        Cursor cursor = db.query(T_BLACK_LIST, new String[]{PHONE}, null, null, null, null, null);
         cursor.moveToFirst();
         Log.d(TAG, "数据库中已有黑名单记录：" + cursor.getCount());
 
@@ -139,22 +145,30 @@ public class FilterService extends Service{
     }
 
     private Set<String> loadContacts() {
-        //得到ContentResolver对象
-        ContentResolver cr = getContentResolver();
-        //取得电话本中开始一项的光标
-        Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        Set<String> numbers = new HashSet<String>();
+        final Set<String> numbers = new HashSet<String>();
 
-        Log.d(TAG, "加载联系人记录：" + cursor.getCount());
-        //向下移动光标
-        while(cursor.moveToNext()) {
-            String phone = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            Log.d(TAG, phone);
-            //格式化手机号
-            phone = phone.replace("-","");
-            phone = phone.replace(" ","");
-            numbers.add(phone);
-        }
+        //每隔3个小时刷新一次联系人
+        executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                //得到ContentResolver对象
+                ContentResolver cr = getContentResolver();
+                //取得电话本中开始一项的光标
+                Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
+
+                Log.d(TAG, "加载联系人记录：" + cursor.getCount());
+                //向下移动光标
+                while (cursor.moveToNext()) {
+                    String phone = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    Log.d(TAG, phone);
+                    //格式化手机号
+                    phone = phone.replace("-", "");
+                    phone = phone.replace(" ", "");
+                    numbers.add(phone);
+                }
+            }
+        }, 0, 3, TimeUnit.HOURS);
+
         return numbers;
     }
 

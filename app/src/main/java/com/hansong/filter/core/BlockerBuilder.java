@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 
 /**
  * 拦截器构造者，用于Blocker的配置及构造
- * @author boyliang
+ * @author hansong
  */
 public final class BlockerBuilder {
 
@@ -13,7 +13,7 @@ public final class BlockerBuilder {
 
     /**
      * IBlocker的内部实现，隐藏Blocker的实现细节
-     * @author boyliang
+     * @author hansong
      *
      */
     static final class BlockerImpl implements IBlocker, AbsTrigger.ITriggerListener{
